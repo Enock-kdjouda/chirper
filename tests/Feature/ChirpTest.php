@@ -147,4 +147,56 @@ public function test_un_utilisateur_ne_peut_pas_supprimer_le_chirp_d_un_autre()
         $reponse->assertForbidden();
     }
 
+    // Exercice 7
+
+public function test_un_chirp_ne_peut_pas_etre_vide_lors_de_la_mise_a_jour(): void
+    {
+        $utilisateur = User::factory()->create();
+        $chirp = Chirp::factory()->create(['user_id' => $utilisateur->id]);
+
+        $this->actingAs($utilisateur);
+
+        $reponse = $this->patch("/chirps/{$chirp->id}", [
+            'message' => '', // Contenu vide
+        ]);
+
+        // Vérifier qu'il y a une erreur de validation
+        $reponse->assertSessionHasErrors(['message']);
+    }
+
+public function test_un_chirp_ne_peut_pas_etre_trop_long_lors_de_la_mise_a_jour(): void
+    {
+        $utilisateur = User::factory()->create();
+        $chirp = Chirp::factory()->create(['user_id' => $utilisateur->id]);
+
+        $this->actingAs($utilisateur);
+
+        $reponse = $this->patch("/chirps/{$chirp->id}", [
+            'message' => str_repeat('a', 256), // Contenu trop long
+        ]);
+
+        // Vérifier qu'il y a une erreur de validation
+        $reponse->assertSessionHasErrors(['message']);
+    }
+
+public function test_un_chirp_valide_est_accepte_lors_de_la_mise_a_jour(): void
+    {
+        $utilisateur = User::factory()->create();
+        $chirp = Chirp::factory()->create(['user_id' => $utilisateur->id]);
+
+        $this->actingAs($utilisateur);
+
+        $reponse = $this->patch("/chirps/{$chirp->id}", [
+            'message' => 'Mise à jour réussie',
+        ]);
+
+        // Vérifier que la mise à jour a été effectuée
+        $reponse->assertRedirect('/chirps');
+        $this->assertDatabaseHas('chirps', [
+            'id' => $chirp->id,
+            'message' => 'Mise à jour réussie',
+        ]);
+    }
+
+
 }
