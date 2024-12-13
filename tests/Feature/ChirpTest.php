@@ -198,5 +198,32 @@ public function test_un_chirp_valide_est_accepte_lors_de_la_mise_a_jour(): void
         ]);
     }
 
+    // Exercice 8
+public function test_un_utilisateur_ne_peut_pas_creer_plus_de_10_chirps(): void
+    {
+        // Créer un utilisateur
+        $utilisateur = User::factory()->create();
+
+        // Créer 10 chirps pour cet utilisateur
+        Chirp::factory()->count(10)->create(['user_id' => $utilisateur->id]);
+
+        $this->actingAs($utilisateur);
+
+        // Essayer de créer un 11ᵉ chirp
+        $reponse = $this->post('/chirps', [
+            'message' => 'Ce chirp ne devrait pas être créé.',
+        ]);
+
+        // Vérifier qu'une erreur est retournée
+        $reponse->assertRedirect('/chirps');
+        $reponse->assertSessionHasErrors(['message' => 'Vous avez atteint la limite de 10 chirps.']);
+
+        // Vérifier que le 11ᵉ chirp n'est pas dans la base de données
+        $this->assertDatabaseMissing('chirps', [
+            'message' => 'Ce chirp ne devrait pas être créé.',
+            'user_id' => $utilisateur->id,
+        ]);
+    }
+
 
 }

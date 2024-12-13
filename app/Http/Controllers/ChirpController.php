@@ -40,6 +40,11 @@ class ChirpController extends Controller
    
     public function store(Request $request): RedirectResponse
     {
+
+         // Vérifier si l'utilisateur a déjà 10 chirps
+        if ($request->user()->chirps()->count() >= 10) {
+            return redirect()->route('chirps.index')->withErrors(['message' => 'Vous avez atteint la limite de 10 chirps.']);
+        }
         $validated = $request->validate([
             'message' => 'required|string|max:255',
         ]);
@@ -96,4 +101,8 @@ class ChirpController extends Controller
  
         return redirect(route('chirps.index'));
     }
+
+    
+
+    
 }
