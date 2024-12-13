@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Models\Chirp;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -59,5 +60,27 @@ class ChirpTest extends TestCase
     ]);
     $reponse->assertSessionHasErrors(['message']);
     }
+
+    // Exercice 3
+
+    public function test_les_chirps_sont_affiches_sur_la_page_d_accueil(): void
+{
+    // Créer un utilisateur et le connecter
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    // Créer des chirps
+    $chirps = Chirp::factory()->count(3)->create();
+
+    // Faire une requête GET sur la page d'accueil
+    $response = $this->get('/chirps');
+
+    // Vérifier que chaque message est affiché sur la page
+    foreach ($chirps as $chirp) {
+        $response->assertSee($chirp->message, false);
+    }
+}
+
+
 
 }
