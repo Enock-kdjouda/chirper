@@ -114,4 +114,37 @@ public function test_un_utilisateur_peut_supprimer_son_chirp()
     'id' => $chirp->id,
     ]);
     }
+
+    // Exercice 6
+
+public function test_un_utilisateur_ne_peut_pas_modifier_le_chirp_d_un_autre()
+    {
+        $utilisateur1 = User::factory()->create();
+        $utilisateur2 = User::factory()->create();
+
+        $chirp = Chirp::factory()->create(['user_id' => $utilisateur1->id]);
+
+        $this->actingAs($utilisateur2);
+
+        $reponse = $this->patch("/chirps/{$chirp->id}", [
+            'message' => 'Modification non autorisée',
+        ]);
+// Toute tentative non autorisée doit renvoyer une réponse HTTP 403 Forbidden 
+        $reponse->assertForbidden();
+    }
+
+public function test_un_utilisateur_ne_peut_pas_supprimer_le_chirp_d_un_autre()
+    {
+        $utilisateur1 = User::factory()->create();
+        $utilisateur2 = User::factory()->create();
+
+        $chirp = Chirp::factory()->create(['user_id' => $utilisateur1->id]);
+
+        $this->actingAs($utilisateur2);
+
+        $reponse = $this->delete("/chirps/{$chirp->id}");
+// Toute tentative non autorisée doit renvoyer une réponse HTTP 403 Forbidden
+        $reponse->assertForbidden();
+    }
+
 }
