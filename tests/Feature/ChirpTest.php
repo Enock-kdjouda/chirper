@@ -225,5 +225,41 @@ public function test_un_utilisateur_ne_peut_pas_creer_plus_de_10_chirps(): void
         ]);
     }
 
+    // Exercice 9
+public function test_affiche_uniquement_les_chirps_recents(): void
+    {
+        // Créer un utilisateur
+        $utilisateur = User::factory()->create();
+    
+        // Créer 5 chirps récents (dans les 7 derniers jours)
+        Chirp::factory()->count(5)->create([
+            'user_id' => $utilisateur->id,
+            'created_at' => now()->subDays(rand(0, 6)), // Entre aujourd'hui et 6 jours en arrière
+        ]);
+    
+        // Créer 3 chirps anciens (plus de 7 jours)
+        Chirp::factory()->count(3)->create([
+            'user_id' => $utilisateur->id,
+            'created_at' => now()->subDays(8), // Plus de 7 jours
+        ]);
+    
+        $this->actingAs($utilisateur);
+    
+        // Faire une requête GET sur la page d'accueil des chirps
+        $reponse = $this->get('/chirps');
+    
+        // Vérifier que seuls les chirps récents sont affichés
+        $chirpsRecents = Chirp::where('created_at', '>=', now()->subDays(7))->get();
+        foreach ($chirpsRecents as $chirp) {
+            $reponse->assertSee($chirp->message);
+        }
+    
+        // Vérifier que les chirps anciens ne sont pas affichés
+        $chirpsAnciens = Chirp::where('created_at', '<', now()->subDays(7))->get();
+        foreach ($chirpsAnciens as $chirp) {
+            $reponse->assertDontSee($chirp->message);
+        }
+    }
+    
 
 }

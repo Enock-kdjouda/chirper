@@ -20,6 +20,7 @@ class ChirpFactory extends Factory
         return [
             'user_id' => \App\Models\User::factory(), // Associe un utilisateur existant ou créé
             'message' => $this->faker->sentence(), // Générez un message aléatoire
+            'created_at' => now(), // Par défaut, la date actuelle
         ];
     }
 }

@@ -18,11 +18,17 @@ class ChirpController extends Controller
   
     public function index(): View
     {
-        
+         // Récupérer uniquement les chirps créés dans les 7 derniers jours
+        $chirps = Chirp::with('user')
+        ->where('created_at', '>=', now()->subDays(7))
+        ->latest()
+        ->get();
+
+        // Passer les chirps filtrés à la vue
         return view('chirps.index', [
-            'chirps' => Chirp::with('user')->latest()->get(),
-          
+            'chirps' => $chirps,
         ]);
+        
         dd($chirps);
     }
 
