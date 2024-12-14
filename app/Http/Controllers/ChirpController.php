@@ -28,7 +28,7 @@ class ChirpController extends Controller
         return view('chirps.index', [
             'chirps' => $chirps,
         ]);
-        
+
         dd($chirps);
     }
 
@@ -107,6 +107,22 @@ class ChirpController extends Controller
  
         return redirect(route('chirps.index'));
     }
+
+    public function like(Request $request, Chirp $chirp)
+{
+    // Vérifier si l'utilisateur a déjà liké ce chirp
+    if ($chirp->likes()->where('user_id', $request->user()->id)->exists()) {
+        return response()->json(['message' => 'Vous avez déjà liké ce chirp.'], 400);
+    }
+
+    // Ajouter un like
+    $chirp->likes()->create([
+        'user_id' => $request->user()->id,
+    ]);
+
+    return response()->json(['message' => 'Chirp liké avec succès.']);
+}
+
 
     
 

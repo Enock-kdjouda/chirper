@@ -53,6 +53,17 @@
                     </div>
                 </div>
             @endforeach
+                @foreach ($chirps as $chirp)
+             <div>
+             <p>{{ $chirp->message }}</p>
+             <form method="POST" action="/chirps/{{ $chirp->id }}/like">
+                @csrf
+                <button type="submit">Like</button>
+             </form>
+             <p>{{ $chirp->likes->count() }} Likes</p>
+              </div>
+               @endforeach
+
         </div>
     </div>
 </x-app-layout>

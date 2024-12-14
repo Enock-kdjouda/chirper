@@ -260,6 +260,51 @@ public function test_affiche_uniquement_les_chirps_recents(): void
             $reponse->assertDontSee($chirp->message);
         }
     }
+
+    // Exercice 10
+public function test_un_utilisateur_peut_liker_un_chirp(): void
+    {
+        // Créer un utilisateur et un chirp
+        $utilisateur = User::factory()->create();
+        $chirp = Chirp::factory()->create();
+
+        // Connecter l'utilisateur
+        $this->actingAs($utilisateur);
+
+        // Liker le chirp
+        $response = $this->post("/chirps/{$chirp->id}/like");
+
+        // Vérifier la réponse
+        $response->assertStatus(200);
+        $response->assertJson(['message' => 'Chirp liké avec succès.']);
+
+        // Vérifier en base de données
+        $this->assertDatabaseHas('likes', [
+            'chirp_id' => $chirp->id,
+            'user_id' => $utilisateur->id,
+        ]);
+    }
+
+public function test_un_utilisateur_ne_peut_pas_liker_deux_fois_le_meme_chirp(): void
+    {
+        // Créer un utilisateur et un chirp
+        $utilisateur = User::factory()->create();
+        $chirp = Chirp::factory()->create();
+
+        // Connecter l'utilisateur
+        $this->actingAs($utilisateur);
+
+        // Liker le chirp une première fois
+        $this->post("/chirps/{$chirp->id}/like");
+
+        // Tenter de liker le même chirp une deuxième fois
+        $response = $this->post("/chirps/{$chirp->id}/like");
+
+        // Vérifier que la deuxième tentative échoue
+        $response->assertStatus(400);
+        $response->assertJson(['message' => 'Vous avez déjà liké ce chirp.']);
+    }
+
     
 
 }
